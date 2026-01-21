@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ============================================================
+         [APP CONFIG] 앱 기본 설정 - 여기만 수정하세요!
+         ============================================================ -->
+    <title>내 두 번째 앱</title>
+    
+    <!-- PWA 설정 -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="아이디어 앱">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <style>
+/* ================================================================
+   [STYLES] CSS 스타일
+   ================================================================
+   구조:
+   1. BASE      - 기본 리셋, 폰트
+   2. LAYOUT    - 전체 레이아웃, 컨테이너
+   3. COMPONENTS - 버튼, 입력창 등 재사용 요소
+   4. SECTIONS  - 각 기능별 섹션 스타일
+   5. THEME     - 다크모드 스타일
+   6. ANIMATIONS - 애니메이션
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. BASE - 기본 설정
+   ---------------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+
+    /* ============================================================
+       [CUSTOMIZE] 배경색 - 여기서 수정하세요!
+       ============================================================ */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ----------------------------------------------------------------
+   2. LAYOUT - 레이아웃
+   ---------------------------------------------------------------- */
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* ----------------------------------------------------------------
+   3. COMPONENTS - 공통 컴포넌트
+   ---------------------------------------------------------------- */
+button {
+    /* ============================================================
+       [CUSTOMIZE] 버튼 기본색 - 여기서 수정하세요!
+       ============================================================ */
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+button:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button.small {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+button.delete-btn {
+    background: #ef4444;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+button.delete-btn:hover {
+    background: #dc2626;
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+}
+
+button.secondary {
+    background: #6b7280;
+}
+
+button.secondary:hover {
+    background: #4b5563;
+}
+
+input[type="text"],
+input[type="file"] {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    /* ============================================================
+       [CUSTOMIZE] 포커스 색상 - 여기서 수정하세요!
+       ============================================================ */
+    border-color: #667eea;
+}
+
+input[type="file"] {
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+/* ----------------------------------------------------------------
+   4. SECTIONS - 기능별 섹션
+   ---------------------------------------------------------------- */
+
+/* 테마 토글 */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    padding: 8px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.toggle-switch {
+    width: 50px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 13px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.toggle-slider {
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle.active .toggle-slider {
+    left: 26px;
+}
+
+.theme-toggle.active .toggle-switch {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* 카운터 섹션 */
+.counter-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.counter-display {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    /* ============================================================
+       [CUSTOMIZE] 카운터 숫자 색상 - 여기서 수정하세요!
+       ============================================================ */
+    color: #667eea;
+}
+
+.counter-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 메모 섹션 */
+.memo-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.search-filter-section {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.filter-buttons button {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.filter-buttons button.active {
+    background: #764ba2;
+}
+
+.memo-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.memo-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.memo-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s;
+    /* ============================================================
+       [CUSTOMIZE] 메모 아이템 강조색 - 여기서 수정하세요!
+       ============================================================ */
+    border-left: 4px solid #667eea;
+}
+
+.memo-item.completed {
+    opacity: 0.6;
+}
+
+.memo-item.completed .memo-text {
+    text-decoration: line-through;
+    color: #6b7280;
+}
+
+.memo-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.memo-text {
+    flex: 1;
+    word-break: break-word;
+}
+
+.memo-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.export-buttons button {
+    flex: 1;
+    font-size: 14px;
+    padding: 10px 16px;
+}
+
+.import-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #e0e0e0;
+}
+
+/* Undo 토스트 */
+.undo-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideUp 0.3s;
+    z-index: 1000;
+}
+
+.undo-toast button {
+    background: #10b981;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.undo-toast button:hover {
+    background: #059669;
+}
+
+/* ----------------------------------------------------------------
+   5. THEME - 다크모드
+   ---------------------------------------------------------------- */
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.dark-mode .container {
+    background: #0f3460;
+    color: #e0e0e0;
+}
+
+body.dark-mode h1 {
+    color: #e0e0e0;
+}
+
+body.dark-mode .counter-section,
+body.dark-mode .memo-section {
+    background: #1a1a2e;
+}
+
+body.dark-mode .counter-display {
+    color: #7dd3fc;
+}
+
+body.dark-mode button {
+    background: #0891b2;
+}
+
+body.dark-mode button:hover {
+    background: #0e7490;
+    box-shadow: 0 5px 15px rgba(8, 145, 178, 0.4);
+}
+
+body.dark-mode input[type="text"] {
+    background: #0f3460;
+    border-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+body.dark-mode input[type="text"]:focus {
+    border-color: #0891b2;
+}
+
+body.dark-mode .memo-item {
+    background: #0f3460;
+    border-left-color: #0891b2;
+    color: #e0e0e0;
+}
+
+body.dark-mode .empty-message {
+    color: #666;
+}
+
+body.dark-mode .filter-buttons button.active {
+    background: #a855f7;
+}
+
+body.dark-mode button.delete-btn {
+    background: #dc2626;
+}
+
+body.dark-mode button.delete-btn:hover {
+    background: #b91c1c;
+}
+
+body.dark-mode .memo-item.completed .memo-text {
+    color: #9ca3af;
+}
+
+body.dark-mode .import-section {
+    border-top-color: #1a1a2e;
+}
+
+/* ----------------------------------------------------------------
+   6. ANIMATIONS - 애니메이션
+   ---------------------------------------------------------------- */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- ============================================================
+         [UI] HTML 구조
+         ============================================================
+         구조:
+         1. 테마 토글 버튼
+         2. 메인 컨테이너
+            - 제목
+            - 카운터 섹션
+            - 메모 섹션
+         ============================================================ -->
+
+    <!-- 테마 토글 -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span>🌙</span>
+        <div class="toggle-switch">
+            <div class="toggle-slider"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ========================================================
+             [CUSTOMIZE] 앱 제목 - 여기서 수정하세요!
+             ======================================================== -->
+        <h1>내 두 번째 앱</h1>
+
+        <!-- ========================================================
+             [SECTION] 카운터 섹션
+             - 필요없으면 이 섹션 전체를 삭제하세요
+             ======================================================== -->
+        <div class="counter-section">
+            <div class="counter-display" id="counterDisplay">0</div>
+            <div class="counter-buttons">
+                <button onclick="increaseCounter()">+1</button>
+                <button onclick="resetCounter()">리셋</button>
+            </div>
+        </div>
+
+        <!-- ========================================================
+             [SECTION] 메모 섹션
+             - 필요없으면 이 섹션 전체를 삭제하세요
+             ======================================================== -->
+        <div class="memo-section">
+            <!-- 검색 및 필터 -->
+            <div class="search-filter-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="아이디어 검색..." oninput="filterMemos()">
+                </div>
+                <div class="filter-buttons">
+                    <button class="active" onclick="setFilter('all')">전체</button>
+                    <button onclick="setFilter('active')">진행중</button>
+                    <button onclick="setFilter('completed')">완료</button>
+                </div>
+            </div>
+
+            <!-- 메모 입력 -->
+            <div class="memo-input-group">
+                <input type="text" id="memoInput" placeholder="아이디어를 입력하세요..." onkeypress="handleEnter(event)">
+                <button onclick="addMemo()">아이디어 추가</button>
+            </div>
+
+            <!-- 메모 목록 -->
+            <div class="memo-list" id="memoList">
+                <div class="empty-message">아이디어가 없습니다</div>
+            </div>
+
+            <!-- 내보내기/가져오기 -->
+            <div class="export-buttons">
+                <button onclick="exportJSON()">내보내기 (.json)</button>
+                <button onclick="exportTXT()">내보내기 (.txt)</button>
+            </div>
+
+            <div class="import-section">
+                <input type="file" id="importFile" accept=".json" onchange="importJSON(event)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+/* ================================================================
+   [JAVASCRIPT] 앱 로직
+   ================================================================
+   구조:
+   1. CONFIG    - 앱 설정값
+   2. STATE     - 상태 변수
+   3. STORAGE   - 저장/불러오기
+   4. UI        - 화면 렌더링
+   5. EVENTS    - 이벤트 핸들러
+   6. UTILS     - 유틸리티 함수
+   7. INIT      - 초기화
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. CONFIG - 앱 설정
+   ----------------------------------------------------------------
+   [CUSTOMIZE] 앱 동작을 변경하려면 여기를 수정하세요!
+   ---------------------------------------------------------------- */
+const CONFIG = {
+    // 로컬스토리지 키 (앱마다 다르게 설정)
+    STORAGE_KEYS: {
+        COUNTER: 'counter',
+        MEMOS: 'memos',
+        DARK_MODE: 'darkMode'
+    },
+
+    // 되돌리기 토스트 표시 시간 (밀리초)
+    UNDO_TIMEOUT: 5000,
+
+    // 파일 내보내기 접두어
+    EXPORT_PREFIX: 'memo-backup'
+};
+
+/* ----------------------------------------------------------------
+   2. STATE - 상태 관리
+   ----------------------------------------------------------------
+   앱의 현재 상태를 저장하는 변수들
+   ---------------------------------------------------------------- */
+const STATE = {
+    counter: 0,
+    memos: [],
+    currentFilter: 'all',
+    deletedMemo: null,
+    undoTimeout: null
+};
+
+/* ----------------------------------------------------------------
+   3. STORAGE - 저장/불러오기
+   ----------------------------------------------------------------
+   localStorage를 사용한 데이터 영속화
+   ---------------------------------------------------------------- */
+const Storage = {
+    // 모든 데이터 저장
+    save() {
+        localStorage.setItem(CONFIG.STORAGE_KEYS.COUNTER, STATE.counter);
+        localStorage.setItem(CONFIG.STORAGE_KEYS.MEMOS, JSON.stringify(STATE.memos));
+    },
+
+    // 모든 데이터 불러오기
+    load() {
+        const savedCounter = localStorage.getItem(CONFIG.STORAGE_KEYS.COUNTER);
+        const savedMemos = localStorage.getItem(CONFIG.STORAGE_KEYS.MEMOS);
+        const savedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.DARK_MODE);
+
+        if (savedCounter !== null) {
+            STATE.counter = parseInt(savedCounter);
+            UI.updateCounterDisplay();
+        }
+
+        if (savedMemos !== null) {
+            STATE.memos = JSON.parse(savedMemos);
+            // 기존 데이터가 문자열 배열인 경우 객체로 변환
+            STATE.memos = STATE.memos.map(memo => {
+                if (typeof memo === 'string') {
+                    return { text: memo, completed: false, id: Date.now() + Math.random() };
+                }
+                return memo;
+            });
+            UI.renderMemos();
+        }
+
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle').classList.add('active');
+        }
+    },
+
+    // 테마 저장
+    saveTheme(isDark) {
+        localStorage.setItem(CONFIG.STORAGE_KEYS.DARK_MODE, isDark);
+    }
+};
+
+/* ----------------------------------------------------------------
+   4. UI - 화면 렌더링
+   ----------------------------------------------------------------
+   DOM 조작 및 화면 업데이트 함수들
+   ---------------------------------------------------------------- */
+const UI = {
+    // 카운터 표시 업데이트
+    updateCounterDisplay() {
+        document.getElementById('counterDisplay').textContent = STATE.counter;
+    },
+
+    // 메모 목록 렌더링
+    renderMemos() {
+        const memoList = document.getElementById('memoList');
+        const filtered = this.getFilteredMemos();
+
+        if (filtered.length === 0) {
+            memoList.innerHTML = '<div class="empty-message">아이디어가 없습니다</div>';
+            return;
+        }
+
+        memoList.innerHTML = filtered.map(memo => {
+            const completedClass = memo.completed ? 'completed' : '';
+            return `
+                <div class="memo-item ${completedClass}">
+                    <input type="checkbox" class="memo-checkbox"
+                           ${memo.completed ? 'checked' : ''}
+                           onchange="Events.toggleMemo(${memo.id})">
+                    <span class="memo-text">${Utils.escapeHtml(memo.text)}</span>
+                    <div class="memo-actions">
+                        <button class="delete-btn" onclick="Events.deleteMemo(${memo.id})">삭제</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    // 필터링된 메모 가져오기
+    getFilteredMemos() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        return STATE.memos.filter(memo => {
+            const matchesSearch = memo.text.toLowerCase().includes(searchTerm);
+
+            let matchesFilter = true;
+            if (STATE.currentFilter === 'active') {
+                matchesFilter = !memo.completed;
+            } else if (STATE.currentFilter === 'completed') {
+                matchesFilter = memo.completed;
+            }
+
+            return matchesSearch && matchesFilter;
+        });
+    },
+
+    // 되돌리기 토스트 표시
+    showUndoToast() {
+        const existingToast = document.querySelector('.undo-toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        if (STATE.undoTimeout) {
+            clearTimeout(STATE.undoTimeout);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'undo-toast';
+        toast.innerHTML = `
+            <span>아이디어가 삭제되었습니다</span>
+            <button onclick="Events.undoDelete()">되돌리기</button>
+        `;
+        document.body.appendChild(toast);
+
+        STATE.undoTimeout = setTimeout(() => {
+            toast.remove();
+            STATE.deletedMemo = null;
+        }, CONFIG.UNDO_TIMEOUT);
+    },
+
+    // 되돌리기 토스트 숨기기
+    hideUndoToast() {
+        const toast = document.querySelector('.undo-toast');
+        if (toast) {
+            toast.remove();
+        }
+
+        if (STATE.undoTimeout) {
+            clearTimeout(STATE.undoTimeout);
+        }
+    }
+};
+
+/* ----------------------------------------------------------------
+   5. EVENTS - 이벤트 핸들러
+   ----------------------------------------------------------------
+   [CUSTOMIZE] 새 기능을 추가하려면 여기에 함수를 추가하세요!
+   ---------------------------------------------------------------- */
+const Events = {
+    // 카운터 증가
+    increaseCounter() {
+        STATE.counter++;
+        UI.updateCounterDisplay();
+        Storage.save();
+    },
+
+    // 카운터 리셋
+    resetCounter() {
+        STATE.counter = 0;
+        UI.updateCounterDisplay();
+        Storage.save();
+    },
+
+    // 메모 추가
+    addMemo() {
+        const input = document.getElementById('memoInput');
+        const memoText = input.value.trim();
+
+        if (memoText === '') {
+            alert('아이디어를 입력해주세요!');
+            return;
+        }
+
+        const newMemo = {
+            id: Date.now(),
+            text: memoText,
+            completed: false
+        };
+
+        STATE.memos.unshift(newMemo);
+        input.value = '';
+        UI.renderMemos();
+        Storage.save();
+    },
+
+    // 메모 완료 토글
+    toggleMemo(id) {
+        const memo = STATE.memos.find(m => m.id === id);
+        if (memo) {
+            memo.completed = !memo.completed;
+            UI.renderMemos();
+            Storage.save();
+        }
+    },
+
+    // 메모 삭제
+    deleteMemo(id) {
+        const index = STATE.memos.findIndex(m => m.id === id);
+        if (index !== -1) {
+            STATE.deletedMemo = { memo: STATE.memos[index], index: index };
+            STATE.memos.splice(index, 1);
+            UI.renderMemos();
+            Storage.save();
+            UI.showUndoToast();
+        }
+    },
+
+    // 삭제 되돌리기
+    undoDelete() {
+        if (STATE.deletedMemo) {
+            STATE.memos.splice(STATE.deletedMemo.index, 0, STATE.deletedMemo.memo);
+            UI.renderMemos();
+            Storage.save();
+            UI.hideUndoToast();
+            STATE.deletedMemo = null;
+        }
+    },
+
+    // 필터 설정
+    setFilter(filter) {
+        STATE.currentFilter = filter;
+
+        const buttons = document.querySelectorAll('.filter-buttons button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        UI.renderMemos();
+    },
+
+    // 메모 필터링 (검색)
+    filterMemos() {
+        UI.renderMemos();
+    },
+
+    // Enter 키 처리
+    handleEnter(event) {
+        if (event.key === 'Enter') {
+            this.addMemo();
+        }
+    },
+
+    // 테마 토글
+    toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        document.querySelector('.theme-toggle').classList.toggle('active');
+        Storage.saveTheme(isDark);
+    },
+
+    // JSON 내보내기
+    exportJSON() {
+        const data = {
+            counter: STATE.counter,
+            darkMode: document.body.classList.contains('dark-mode'),
+            memos: STATE.memos
+        };
+
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${CONFIG.EXPORT_PREFIX}-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+
+        URL.revokeObjectURL(url);
+    },
+
+    // TXT 내보내기
+    exportTXT() {
+        let txtContent = '=== 내 아이디어 목록 ===\n\n';
+
+        STATE.memos.forEach((memo, index) => {
+            const status = memo.completed ? '[완료]' : '[진행중]';
+            txtContent += `${index + 1}. ${status} ${memo.text}\n`;
+        });
+
+        const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `idea-list-${new Date().toISOString().slice(0, 10)}.txt`;
+        a.click();
+
+        URL.revokeObjectURL(url);
+    },
+
+    // JSON 가져오기
+    importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (data.counter !== undefined) {
+                    STATE.counter = data.counter;
+                    UI.updateCounterDisplay();
+                }
+
+                if (data.memos !== undefined) {
+                    STATE.memos = data.memos;
+                    UI.renderMemos();
+                }
+
+                if (data.darkMode !== undefined) {
+                    if (data.darkMode) {
+                        document.body.classList.add('dark-mode');
+                        document.querySelector('.theme-toggle').classList.add('active');
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                        document.querySelector('.theme-toggle').classList.remove('active');
+                    }
+                    Storage.saveTheme(data.darkMode);
+                }
+
+                Storage.save();
+                alert('데이터를 성공적으로 가져왔습니다!');
+
+                event.target.value = '';
+            } catch (error) {
+                alert('파일을 읽는 중 오류가 발생했습니다.');
+                console.error(error);
+            }
+        };
+        reader.readAsText(file);
+    }
+};
+
+/* ----------------------------------------------------------------
+   6. UTILS - 유틸리티 함수
+   ----------------------------------------------------------------
+   재사용 가능한 헬퍼 함수들
+   ---------------------------------------------------------------- */
+const Utils = {
+    // HTML 이스케이프 (XSS 방지)
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+};
+
+/* ----------------------------------------------------------------
+   7. INIT - 초기화
+   ----------------------------------------------------------------
+   앱 시작시 실행되는 코드
+   ---------------------------------------------------------------- */
+
+// 전역 함수 연결 (HTML onclick에서 호출)
+function increaseCounter() { Events.increaseCounter(); }
+function resetCounter() { Events.resetCounter(); }
+function addMemo() { Events.addMemo(); }
+function toggleMemo(id) { Events.toggleMemo(id); }
+function deleteMemo(id) { Events.deleteMemo(id); }
+function setFilter(filter) { Events.setFilter(filter); }
+function filterMemos() { Events.filterMemos(); }
+function handleEnter(event) { Events.handleEnter(event); }
+function toggleTheme() { Events.toggleTheme(); }
+function exportJSON() { Events.exportJSON(); }
+function exportTXT() { Events.exportTXT(); }
+function importJSON(event) { Events.importJSON(event); }
+
+// 앱 시작
+Storage.load();
+
+/* ----------------------------------------------------------------
+   8. PWA - Service Worker 등록
+   ---------------------------------------------------------------- */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+                console.log('[PWA] Service Worker 등록 성공:', registration.scope);
+            })
+            .catch((error) => {
+                console.log('[PWA] Service Worker 등록 실패:', error);
+            });
+    });
+}
+    </script>
+</body>
+</html>

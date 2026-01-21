@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>아이콘 생성기</title>
+</head>
+<body>
+    <h2>PWA 아이콘 생성하기</h2>
+    <p>아래 버튼을 클릭하면 192x192와 512x512 아이콘이 자동으로 다운로드됩니다.</p>
+    <button onclick="generateIcons()">아이콘 생성</button>
+    
+    <canvas id="canvas" style="display:none;"></canvas>
+    
+    <script>
+    function generateIcons() {
+        // 192x192 아이콘 생성
+        generateIcon(192, 'icon-192.png');
+        
+        // 512x512 아이콘 생성
+        setTimeout(() => {
+            generateIcon(512, 'icon-512.png');
+        }, 500);
+        
+        alert('아이콘 2개가 다운로드됩니다!\n다운로드된 파일을 icons 폴더에 넣어주세요.');
+    }
+    
+    function generateIcon(size, filename) {
+        const canvas = document.getElementById('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        // 배경 그라디언트
+        const gradient = ctx.createLinearGradient(0, 0, size, size);
+        gradient.addColorStop(0, '#667eea');
+        gradient.addColorStop(1, '#764ba2');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+        
+        // 둥근 모서리 효과
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.beginPath();
+        const radius = size * 0.2;
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(size - radius, 0);
+        ctx.quadraticCurveTo(size, 0, size, radius);
+        ctx.lineTo(size, size - radius);
+        ctx.quadraticCurveTo(size, size, size - radius, size);
+        ctx.lineTo(radius, size);
+        ctx.quadraticCurveTo(0, size, 0, size - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 아이콘 심볼 그리기 (전구 모양)
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = size * 0.04;
+        
+        const centerX = size / 2;
+        const centerY = size / 2;
+        const bulbRadius = size * 0.15;
+        
+        // 전구 상단 (원형)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - size * 0.05, bulbRadius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 전구 하단 (사각형)
+        ctx.fillRect(
+            centerX - bulbRadius * 0.5, 
+            centerY + size * 0.08, 
+            bulbRadius, 
+            size * 0.08
+        );
+        
+        // 밑부분 (소켓)
+        ctx.fillRect(
+            centerX - bulbRadius * 0.3, 
+            centerY + size * 0.16, 
+            bulbRadius * 0.6, 
+            size * 0.04
+        );
+        
+        // 빛나는 효과선들
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i;
+            const startX = centerX + Math.cos(angle) * bulbRadius * 1.8;
+            const startY = centerY - size * 0.05 + Math.sin(angle) * bulbRadius * 1.8;
+            const endX = centerX + Math.cos(angle) * bulbRadius * 2.3;
+            const endY = centerY - size * 0.05 + Math.sin(angle) * bulbRadius * 2.3;
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        }
+        
+        // 다운로드
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+    </script>
+</body>
+</html>
